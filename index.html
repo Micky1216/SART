@@ -96,8 +96,28 @@
 
         function endTask() {
             taskContainer.style.display = 'none';
-            alert('Task completed! Thank you for participating.');
-            console.log('Responses:', responseLog);
+            submitResponses();
+           async function submitResponses() {
+    const payload = responseLog.map(entry => ({
+        participantId: prompt("Enter your Participant ID:"),
+        stimulus: entry.stimulus,
+        response: entry.response,
+        timestamp: entry.timestamp
+    }));
+    
+    try {
+        await fetch(https://script.google.com/macros/s/AKfycbwAE8byC3YSf6XG1HfqNeGeoON43OG0IyVS6yZr86yM3tQJxUTIC1t5BpoT-zly_2nl/exec, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        alert("Thank you! Your responses have been submitted.");
+    } catch (error) {
+        alert("Failed to submit responses. Please try again.");
+        console.error(error);
+    }
+}
+
         }
 
         document.addEventListener('keydown', (event) => {
