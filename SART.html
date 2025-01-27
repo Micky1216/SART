@@ -106,7 +106,7 @@
     }));
     
     try {
-        await fetch "https://script.google.com/macros/s/AKfycbzdh3mzZxIOD9DWjsXhUeLUmFP747B5b4LegCKanrkjN8r4gt5-RvaAmsAeATdY3t2P/exec", {
+        await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
