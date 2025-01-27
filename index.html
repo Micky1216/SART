@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustained Attention to Response Task (SART)</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        #task-container {
+            display: none;
+            text-align: center;
+        }
+        #start-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        #stimulus {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #instructions {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="welcome-screen">
+        <h1>Sustained Attention to Response Task (SART)</h1>
+        <p id="instructions">Press the Start button to begin. Respond to every number except for <strong>3</strong>. When you see a <strong>3</strong>, do not press any key.</p>
+        <button id="start-button">Start</button>
+    </div>
+
+    <div id="task-container">
+        <div id="stimulus"></div>
+    </div>
+
+    <script>
+        const startButton = document.getElementById('start-button');
+        const taskContainer = document.getElementById('task-container');
+        const stimulusElement = document.getElementById('stimulus');
+        const welcomeScreen = document.getElementById('welcome-screen');
+
+        let sequence = [];
+        let currentStimulusIndex = 0;
+        let responseLog = [];
+        let trialInterval;
+
+        // Generate random sequence of numbers (1-9)
+        function generateSequence(length) {
+            const numbers = [];
+            for (let i = 0; i < length; i++) {
+                numbers.push(Math.floor(Math.random() * 9) + 1);
+            }
+            return numbers;
+        }
+
+        function showStimulus() {
+            if (currentStimulusIndex >= sequence.length) {
+                clearInterval(trialInterval);
+                endTask();
+                return;
+            }
+            
+            const number = sequence[currentStimulusIndex];
+            stimulusElement.textContent = number;
+            currentStimulusIndex++;
+        }
+
+        function startTask() {
+            sequence = generateSequence(30); // 30 trials
+            currentStimulusIndex = 0;
+            responseLog = [];
+            
+            welcomeScreen.style.display = 'none';
+            taskContainer.style.display = 'block';
+            
+            trialInterval = setInterval(showStimulus, 1000); // 1 second per trial
+        }
+
+        function endTask() {
+            taskContainer.style.display = 'none';
+            alert('Task completed! Thank you for participating.');
+            console.log('Responses:', responseLog);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (taskContainer.style.display === 'block') {
+                const currentNumber = sequence[currentStimulusIndex - 1];
+                const response = {
+                    stimulus: currentNumber,
+                    response: event.key,
+                    timestamp: Date.now()
+                };
+                responseLog.push(response);
+            }
+        });
+
+        startButton.addEventListener('click', startTask);
+    </script>
+</body>
+</html>
