@@ -95,9 +95,11 @@
         }
 
         function endTask() {
-            taskContainer.style.display = 'none';
-            submitResponses();
-           async function submitResponses() {
+    taskContainer.style.display = 'none';
+    submitResponses(); // Call the function
+}
+
+async function submitResponses() {
     const payload = responseLog.map(entry => ({
         participantId: prompt("Enter your Participant ID:"),
         stimulus: entry.stimulus,
@@ -106,7 +108,7 @@
     }));
     
     try {
-        await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", { 
+        await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
