@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Collection Form</title>
+    <title>SART Assessment</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,9 +36,6 @@
 
     <h1>Employee Information Form</h1>
     <form id="dataForm">
-        <label for="email">Email Address:</label>
-        <input type="email" id="email" required>
-
         <label for="age">Age:</label>
         <input type="number" id="age" required>
 
@@ -47,12 +44,15 @@
             <option value="">Select...</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
-            <option value="Other">Other</option>
-        </select>
+            </select>
 
         <label for="building">Which Carel building are you working in?</label>
-        <input type="text" id="building" required>
-
+        <select id="building" required>
+            <option value="">Select...</option>
+            <option value="CAREL 5">Male</option>
+            <option value="CAREL 6">Female</option>
+            </select>
+        
         <label for="arrivalTime">At what time do you arrive at the office?</label>
         <input type="time" id="arrivalTime" required>
 
@@ -64,15 +64,17 @@
 
     <div id="sartTask" style="display:none;">
         <h2>Sustained Attention to Response Task (SART)</h2>
-        <!-- Placeholder for SART Task -->
-        <p>Task will continue here...</p>
-        <button id="finishTask">Finish Task</button>
+        <p id="sartInstructions">You will see a series of numbers. Press the "Space" key for every number except for "3".</p>
+        <button id="startSART">Start SART</button>
+        <p id="sartResult" style="display:none;"></p>
+        <button id="finishTask" style="display:none;">Finish Task</button>
     </div>
 
     <script>
+        let sartResults = [];
+
         document.getElementById('dataForm').onsubmit = function(event) {
             event.preventDefault();
-
             const formData = {
                 email: document.getElementById('email').value,
                 age: document.getElementById('age').value,
@@ -82,29 +84,83 @@
                 departureTime: document.getElementById('departureTime').value
             };
 
+            // Hide the form and show the SART task
+            document.getElementById('dataForm').style.display = 'none';
+            document.getElementById('sartTask').style.display = 'block';
+
+            // Start the SART task
+            document.getElementById('startSART').onclick = function() {
+                sartResults = [];
+                startSART();
+            };
+        };
+
+        function startSART() {
+            const numbers = [1, 2, 3, 4, 5, 3, 6, 7, 8, 9, 3]; // Example sequence
+            let index = 0;
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === ' ') {
+                    if (numbers[index] === 3) {
+                        sartResults.push('Ignored 3');
+                    } else {
+                        sartResults.push('Pressed ' + numbers[index]);
+                    }
+                    index++;
+                    if (index >= numbers.length) {
+                        finishSART();
+                    }
+                }
+            });
+
+            displayNextNumber(numbers[index]);
+        }
+
+        function displayNextNumber(number) {
+            document.getElementById('sartInstructions').innerText = `Number: ${number}`;
+        }
+
+        function finishSART() {
+            document.getElementById('sartResult').innerText = 'SART Finished! Results: ' + sartResults.join(', ');
+            document.getElementById('sartResult').style.display = 'block';
+            document.getElementById('finishTask').style.display = 'block';
+            document.removeEventListener('keydown', () => {});
+        }
+
+        document.getElementById('finishTask').onclick = function() {
+            // Prepare data for sending
+            const formData = {
+                email: document.getElementById('email').value,
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                building: document.getElementById('building').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                departureTime: document.getElementById('departureTime').value,
+                sartResults: sartResults
+            };
+
             // Send data to Google Sheets
-            fetch('https://script.google.com/macros/s/AKfycbxN_isUnqatyR0kjcGyc0maEnM0RDfo7xD5fzkmcw8jsuhu62_Uqd2-aRap69PTwiXxKQ/exec', {
+            fetch('YOUR_GOOGLE_SHEET_API_URL', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Success:', data);
-                // Hide the form and show the SART task
-                document.getElementById('dataForm').style.display = 'none';
-                document.getElementById('sartTask').style.display = 'block';
+                alert('Data submitted successfully!');
             })
             .catch((error) => {
                 console.error('Error:', error);
+                alert('There was an error submitting the form. Please try again.');
             });
-        };
-
-        document.getElementById('finishTask').onclick = function() {
-            // Logic to finish the SART task can be added here
-            alert('SART task completed!');
         };
     </script>
 
