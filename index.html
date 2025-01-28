@@ -234,7 +234,20 @@
             resultsContainer.style.display = 'block'; // Show results
         }
 
-        function sendDataToGoogleSheet(employeeData) {
+        function endTask() {
+    taskContainer.style.display = 'none';
+    displayResults(); // Call the function to display results
+
+    // Collect employee data
+    const employeeData = {
+        age: document.getElementById('age').value,
+        sex: document.getElementById('sex').value,
+        building: document.getElementById('building').value,
+        arrivalTime: document.getElementById('arrivalTime').value,
+        departureTime: document.getElementById('departureTime').value
+    };
+
+    // Send data to Google Sheet
     const url = 'https://script.google.com/macros/s/AKfycbyt7QBkL2fYd5L8XIuVfDzXCEkcFsKMFlboHSxXXYrZhvcBeeJV9wzhRvKxJrttO_CTxQ/exec'; // Replace with your web app URL
 
     fetch(url, {
@@ -248,17 +261,20 @@
             building: employeeData.building,
             arrivalTime: employeeData.arrivalTime,
             departureTime: employeeData.departureTime,
-            correctResponses: correctResponses // Add this line to include the correct responses
+            correctResponses: correctResponses // Include correct responses in the data sent
         }),
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            console.log('Data successfully sent to Google Sheets:', data);
+            alert('Data successfully sent to Google Sheets!');
+        })
+        .catch(error => {
+            console.error('Error sending data to Google Sheets:', error);
+            alert('Failed to send data to Google Sheets. Please try again.');
+        });
 }
+
         document.addEventListener('keydown', (event) => {
             if (taskContainer.style.display === 'block') {
                 const currentNumber = sequence[currentStimulusIndex - 1];
