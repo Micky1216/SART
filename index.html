@@ -141,21 +141,34 @@
         employeeForm.style.display = 'flex';
 
         document.getElementById('submit-info').onclick = function() {
-            const employeeData = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                building: document.getElementById('building').value,
-                arrivalTime: document.getElementById('arrivalTime').value,
-                departureTime: document.getElementById('departureTime').value
-            };
+    // Retrieve values from the form inputs
+    const age = document.getElementById('age').value;
+    const sex = document.getElementById('sex').value;
+    const building = document.getElementById('building').value;
+    const arrivalTime = document.getElementById('arrivalTime').value;
+    const departureTime = document.getElementById('departureTime').value;
 
-            // Log employee data
-            console.log('Employee Data:', employeeData);
+    // Validation check
+    if (!age || !sex || !building || !arrivalTime || !departureTime) {
+        alert("Please fill out all fields before proceeding.");
+        return; // Stop the submission if validation fails
+    }
 
-            // Hide the form and show the welcome screen
-            employeeForm.style.display = 'none';
-            welcomeScreen.style.display = 'block';
-        };
+    const employeeData = {
+        age: age,
+        sex: sex,
+        building: building,
+        arrivalTime: arrivalTime,
+        departureTime: departureTime
+    };
+
+    // Log employee data
+    console.log('Employee Data:', employeeData);
+
+    // Hide the form and show the welcome screen
+    employeeForm.style.display = 'none';
+    welcomeScreen.style.display = 'block';
+};
 
         // Generate random sequence of numbers (1-9)
         function generateSequence(length) {
