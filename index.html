@@ -130,7 +130,6 @@
         document.getElementById('finishTask').onclick = function() {
             // Prepare data for sending
             const formData = {
-                email: document.getElementById('email').value,
                 age: document.getElementById('age').value,
                 sex: document.getElementById('sex').value,
                 building: document.getElementById('building').value,
@@ -140,7 +139,7 @@
             };
 
             // Send data to Google Sheets
-            fetch('YOUR_GOOGLE_SHEET_API_URL', {
+            fetch('https://script.google.com/macros/library/d/1CZ1VP0DD6SmGxwaibljPxMb5iNlzJPQ1j1AEU9efHUw8d78XoQxNE5Ze/1', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
