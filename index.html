@@ -3,79 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SART Assessment</title>
+    <title>Sustained Attention to Response Task (SART)</title>
     <style>
         body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
             font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: auto;
+            background-color: #f5f5f5;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
+        #task-container {
+            display: none;
+            text-align: center;
         }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+        #start-button {
+            padding: 10px 20px;
+            font-size: 16px;
             cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
         }
-        button:hover {
-            background-color: #45a049;
+        #stimulus {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #instructions {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #employee-form {
+            display: none;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-
-    <h1>Employee Information Form</h1>
-    <form id="dataForm">
+    <div id="employee-form">
+        <h2>Employee Information</h2>       
         <label for="age">Age:</label>
         <input type="number" id="age" required>
-
+        
         <label for="sex">Sex:</label>
         <select id="sex" required>
             <option value="">Select...</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
         </select>
-
-        <label for="building">In which Carel building you work?:</label>
-        <select id="building" required>
+        
+        <label for="building">Which Carel building are you working in?</label>
+         <select id="building" required>
             <option value="">Select...</option>
             <option value="CAREL 5">CAREL 5</option>
             <option value="CAREL 6">CAREL 6</option>
         </select>
-
-        <label for="arrivalTime">At what time do you arrive at the office?</label>
+        
+        <label for="arrivalTime">Arrival Time:</label>
         <input type="time" id="arrivalTime" required>
 
-        <label for="departureTime">At what time do you leave the office?</label>
+        <label for="departureTime">Departure Time:</label>
         <input type="time" id="departureTime" required>
 
-        <button type="submit">Submit</button>
-    </form>
+        <button id="submit-info">Submit</button>
+    </div>
 
-    <div id="sartTask" style="display:none;">
-        <h2>Sustained Attention to Response Task (SART)</h2>
-        <p id="sartInstructions">You will see a series of numbers. Press the "Space" key for every number except for "3".</p>
-        <button id="startSART">Start SART</button>
-        <p id="sartResult" style="display:none;"></p>
-        <button id="finishTask" style="display:none;">Finish Task</button>
+    <div id="welcome-screen" style="display:none;">
+        <h1>Sustained Attention to Response Task (SART)</h1>
+        <p id="instructions">Press the Start button to begin. Respond to every number except for <strong>3</strong>. When you see a <strong>3</strong>, do not press any key.</p>
+        <button id="start-button">Start</button>
+    </div>
+
+    <div id="task-container">
+        <div id="stimulus"></div>
     </div>
 
     <script>
-        let sartResults = [];
+        const employeeForm = document.getElementById('employee-form');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const startButton = document.getElementById('start-button');
+        const taskContainer = document.getElementById('task-container');
+        const stimulusElement = document.getElementById('stimulus');
 
-        document.getElementById('dataForm').onsubmit = function(event) {
-            event.preventDefault();
-            const formData = {
+        let sequence = [];
+        let currentStimulusIndex = 0;
+        let responseLog = [];
+        let trialInterval;
+
+        // Show employee form on load
+        employeeForm.style.display = 'block';
+
+        document.getElementById('submit-info').onclick = function() {
+            const employeeData = {
                 email: document.getElementById('email').value,
                 age: document.getElementById('age').value,
                 sex: document.getElementById('sex').value,
@@ -84,84 +108,84 @@
                 departureTime: document.getElementById('departureTime').value
             };
 
-            // Hide the form and show the SART task
-            document.getElementById('dataForm').style.display = 'none';
-            document.getElementById('sartTask').style.display = 'block';
+            console.log('Employee Data:', employeeData); // Log employee data
 
-            // Start the SART task
-            document.getElementById('startSART').onclick = function() {
-                sartResults = [];
-                startSART();
-            };
+            // Hide the form and show the welcome screen
+            employeeForm.style.display = 'none';
+            welcomeScreen.style.display = 'block';
         };
 
-        function startSART() {
-            const numbers = [1, 2, 3, 4, 5, 3, 6, 7, 8, 9, 3]; // Example sequence
-            let index = 0;
-
-            document.addEventListener('keydown', function(event) {
-                if (event.key === ' ') {
-                    if (numbers[index] === 3) {
-                        sartResults.push('Ignored 3');
-                    } else {
-                        sartResults.push('Pressed ' + numbers[index]);
-                    }
-                    index++;
-                    if (index >= numbers.length) {
-                        finishSART();
-                    }
-                }
-            });
-
-            displayNextNumber(numbers[index]);
+        // Generate random sequence of numbers (1-9)
+        function generateSequence(length) {
+            const numbers = [];
+            for (let i = 0; i < length; i++) {
+                numbers.push(Math.floor(Math.random() * 9) + 1);
+            }
+            return numbers;
         }
 
-        function displayNextNumber(number) {
-            document.getElementById('sartInstructions').innerText = `Number: ${number}`;
+        function showStimulus() {
+            if (currentStimulusIndex >= sequence.length) {
+                clearInterval(trialInterval);
+                endTask();
+                return;
+            }
+            
+            const number = sequence[currentStimulusIndex];
+            stimulusElement.textContent = number;
+            currentStimulusIndex++;
         }
 
-        function finishSART() {
-            document.getElementById('sartResult').innerText = 'SART Finished! Results: ' + sartResults.join(', ');
-            document.getElementById('sartResult').style.display = 'block';
-            document.getElementById('finishTask').style.display = 'block';
-            document.removeEventListener('keydown', () => {});
+        function startTask() {
+            sequence = generateSequence(30); // 30 trials
+            currentStimulusIndex = 0;
+            responseLog = [];
+            
+            welcomeScreen.style.display = 'none';
+            taskContainer.style.display = 'block';
+            
+            trialInterval = setInterval(showStimulus, 1000); // 1 second per trial
         }
 
-        document.getElementById('finishTask').onclick = function() {
-            // Prepare data for sending
-            const formData = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                building: document.getElementById('building').value,
-                arrivalTime: document.getElementById('arrivalTime').value,
-                departureTime: document.getElementById('departureTime').value,
-                sartResults: sartResults
-            };
+        function endTask() {
+            taskContainer.style.display = 'none';
+            submitResponses(); // Call the function
+        }
 
-            // Send data to Google Sheets
-            fetch('https://script.google.com/macros/library/d/1CZ1VP0DD6SmGxwaibljPxMb5iNlzJPQ1j1AEU9efHUw8d78XoQxNE5Ze/1', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-                alert('Data submitted successfully!');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('There was an error submitting the form. Please try again.');
-            });
-        };
+        async function submitResponses() {
+            const payload = responseLog.map(entry => ({
+                participantId: prompt("Enter your Participant ID:"),
+                stimulus: entry.stimulus,
+                response: entry.response,
+                timestamp: entry.timestamp
+            }));
+            
+            try {
+                await fetch("https://script.google.com/macros/library/d/1CZ1VP0DD6SmGxwaibljPxMb5iNlzJPQ1j1AEU9efHUw8d78XoQxNE5Ze/1", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                alert("Thank you! Your responses have been submitted.");
+            } catch (error) {
+                alert("Failed to submit responses. Please try again.");
+                console.error(error);
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (taskContainer.style.display === 'block') {
+                const currentNumber = sequence[currentStimulusIndex - 1];
+                const response = {
+                    stimulus: currentNumber,
+                    response: event.key,
+                    timestamp: Date.now()
+                };
+                responseLog.push(response);
+            }
+        });
+
+        startButton.addEventListener('click', startTask);
     </script>
-
 </body>
 </html>
