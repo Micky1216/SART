@@ -3,136 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sustained Attention to Response Task (SART)</title>
+    <title>Data Collection Form</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
         }
-        #task-container {
-            display: none;
-            text-align: center;
+        label {
+            display: block;
+            margin: 10px 0 5px;
         }
-        #start-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
             color: white;
+            border: none;
+            cursor: pointer;
         }
-        #stimulus {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        #instructions {
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 20px;
+        button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div id="welcome-screen">
-        <h1>Sustained Attention to Response Task (SART)</h1>
-        <p id="instructions">Press the Start button to begin. Respond to every number except for <strong>3</strong>. When you see a <strong>3</strong>, do not press any key.</p>
-        <button id="start-button">Start</button>
-    </div>
 
-    <div id="task-container">
-        <div id="stimulus"></div>
+    <h1>Employee Information Form</h1>
+    <form id="dataForm">
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" required>
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" required>
+
+        <label for="sex">Sex:</label>
+        <select id="sex" required>
+            <option value="">Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label for="building">Which Carel building are you working in?</label>
+        <input type="text" id="building" required>
+
+        <label for="arrivalTime">At what time do you arrive at the office?</label>
+        <input type="time" id="arrivalTime" required>
+
+        <label for="departureTime">At what time do you leave the office?</label>
+        <input type="time" id="departureTime" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="sartTask" style="display:none;">
+        <h2>Sustained Attention to Response Task (SART)</h2>
+        <!-- Placeholder for SART Task -->
+        <p>Task will continue here...</p>
+        <button id="finishTask">Finish Task</button>
     </div>
 
     <script>
-        const startButton = document.getElementById('start-button');
-        const taskContainer = document.getElementById('task-container');
-        const stimulusElement = document.getElementById('stimulus');
-        const welcomeScreen = document.getElementById('welcome-screen');
+        document.getElementById('dataForm').onsubmit = function(event) {
+            event.preventDefault();
 
-        let sequence = [];
-        let currentStimulusIndex = 0;
-        let responseLog = [];
-        let trialInterval;
+            const formData = {
+                email: document.getElementById('email').value,
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                building: document.getElementById('building').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                departureTime: document.getElementById('departureTime').value
+            };
 
-        // Generate random sequence of numbers (1-9)
-        function generateSequence(length) {
-            const numbers = [];
-            for (let i = 0; i < length; i++) {
-                numbers.push(Math.floor(Math.random() * 9) + 1);
-            }
-            return numbers;
-        }
+            // Send data to Google Sheets
+            fetch('YOUR_GOOGLE_SHEET_API_URL', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Hide the form and show the SART task
+                document.getElementById('dataForm').style.display = 'none';
+                document.getElementById('sartTask').style.display = 'block';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        };
 
-        function showStimulus() {
-            if (currentStimulusIndex >= sequence.length) {
-                clearInterval(trialInterval);
-                endTask();
-                return;
-            }
-            
-            const number = sequence[currentStimulusIndex];
-            stimulusElement.textContent = number;
-            currentStimulusIndex++;
-        }
-
-        function startTask() {
-            sequence = generateSequence(30); // 30 trials
-            currentStimulusIndex = 0;
-            responseLog = [];
-            
-            welcomeScreen.style.display = 'none';
-            taskContainer.style.display = 'block';
-            
-            trialInterval = setInterval(showStimulus, 1000); // 1 second per trial
-        }
-
-        function endTask() {
-    taskContainer.style.display = 'none';
-    submitResponses(); // Call the function
-}
-
-async function submitResponses() {
-    const payload = responseLog.map(entry => ({
-        participantId: prompt("Enter your Participant ID:"),
-        stimulus: entry.stimulus,
-        response: entry.response,
-        timestamp: entry.timestamp
-    }));
-    
-    try {
-        await fetch("https://script.google.com/macros/library/d/1CZ1VP0DD6SmGxwaibljPxMb5iNlzJPQ1j1AEU9efHUw8d78XoQxNE5Ze/1", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        alert("Thank you! Your responses have been submitted.");
-    } catch (error) {
-        alert("Failed to submit responses. Please try again.");
-        console.error(error);
-    }
-}
-    
-        document.addEventListener('keydown', (event) => {
-            if (taskContainer.style.display === 'block') {
-                const currentNumber = sequence[currentStimulusIndex - 1];
-                const response = {
-                    stimulus: currentNumber,
-                    response: event.key,
-                    timestamp: Date.now()
-                };
-                responseLog.push(response);
-            }
-        });
-
-        startButton.addEventListener('click', startTask);
+        document.getElementById('finishTask').onclick = function() {
+            // Logic to finish the SART task can be added here
+            alert('SART task completed!');
+        };
     </script>
+
 </body>
 </html>
