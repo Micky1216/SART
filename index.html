@@ -234,6 +234,31 @@
             resultsContainer.style.display = 'block'; // Show results
         }
 
+        function sendDataToGoogleSheet(employeeData) {
+    const url = 'https://script.google.com/macros/s/AKfycbyt7QBkL2fYd5L8XIuVfDzXCEkcFsKMFlboHSxXXYrZhvcBeeJV9wzhRvKxJrttO_CTxQ/exec'; // Replace with your web app URL
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            age: employeeData.age,
+            sex: employeeData.sex,
+            building: employeeData.building,
+            arrivalTime: employeeData.arrivalTime,
+            departureTime: employeeData.departureTime,
+            correctResponses: correctResponses // Add this line to include the correct responses
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
         document.addEventListener('keydown', (event) => {
             if (taskContainer.style.display === 'block') {
                 const currentNumber = sequence[currentStimulusIndex - 1];
