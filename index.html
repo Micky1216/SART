@@ -39,6 +39,37 @@
             margin-bottom: 20px;
         }
         #employee-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: left;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
             display: none;
             text-align: center;
         }
@@ -46,7 +77,8 @@
 </head>
 <body>
     <div id="employee-form">
-        <h2>Employee Information</h2>       
+        <h2>Employee Information</h2>
+        
         <label for="age">Age:</label>
         <input type="number" id="age" required>
         
@@ -55,10 +87,11 @@
             <option value="">Select...</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
+            <option value="Other">Other</option>
         </select>
         
         <label for="building">Which Carel building are you working in?</label>
-         <select id="building" required>
+        <select id="building" required>
             <option value="">Select...</option>
             <option value="CAREL 5">CAREL 5</option>
             <option value="CAREL 6">CAREL 6</option>
@@ -83,24 +116,33 @@
         <div id="stimulus"></div>
     </div>
 
+    <div id="results">
+        <h2>Results</h2>
+        <div id="employee-info"></div>
+        <div id="sart-results"></div>
+    </div>
+
     <script>
         const employeeForm = document.getElementById('employee-form');
         const welcomeScreen = document.getElementById('welcome-screen');
         const startButton = document.getElementById('start-button');
         const taskContainer = document.getElementById('task-container');
         const stimulusElement = document.getElementById('stimulus');
+        const resultsContainer = document.getElementById('results');
+        const employeeInfoElement = document.getElementById('employee-info');
+        const sartResultsElement = document.getElementById('sart-results');
 
         let sequence = [];
         let currentStimulusIndex = 0;
         let responseLog = [];
         let trialInterval;
+        let correctResponses = 0; // Counter for correct responses
 
         // Show employee form on load
-        employeeForm.style.display = 'block';
+        employeeForm.style.display = 'flex';
 
         document.getElementById('submit-info').onclick = function() {
             const employeeData = {
-                email: document.getElementById('email').value,
                 age: document.getElementById('age').value,
                 sex: document.getElementById('sex').value,
                 building: document.getElementById('building').value,
@@ -108,7 +150,8 @@
                 departureTime: document.getElementById('departureTime').value
             };
 
-            console.log('Employee Data:', employeeData); // Log employee data
+            // Log employee data
+            console.log('Employee Data:', employeeData);
 
             // Hide the form and show the welcome screen
             employeeForm.style.display = 'none';
@@ -140,6 +183,7 @@
             sequence = generateSequence(30); // 30 trials
             currentStimulusIndex = 0;
             responseLog = [];
+            correctResponses = 0; // Reset correct responses
             
             welcomeScreen.style.display = 'none';
             taskContainer.style.display = 'block';
@@ -149,33 +193,43 @@
 
         function endTask() {
             taskContainer.style.display = 'none';
-            submitResponses(); // Call the function
+            displayResults(); // Call the function to display results
         }
 
-        async function submitResponses() {
-            const payload = responseLog.map(entry => ({
-                participantId: prompt("Enter your Participant ID:"),
-                stimulus: entry.stimulus,
-                response: entry.response,
-                timestamp: entry.timestamp
-            }));
-            
-            try {
-                await fetch("https://script.google.com/macros/library/d/1CZ1VP0DD6SmGxwaibljPxMb5iNlzJPQ1j1AEU9efHUw8d78XoQxNE5Ze/1", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                alert("Thank you! Your responses have been submitted.");
-            } catch (error) {
-                alert("Failed to submit responses. Please try again.");
-                console.error(error);
-            }
+        function displayResults() {
+            // Display employee information
+            const employeeData = {
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                building: document.getElementById('building').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                departureTime: document.getElementById('departureTime').value
+            };
+
+            employeeInfoElement.innerHTML = `
+                <p><strong>Age:</strong> ${employeeData.age}</p>
+                <p><strong>Sex:</strong> ${employeeData.sex}</p>
+                <p><strong>Building:</strong> ${employeeData.building}</p>
+                <p><strong>Arrival Time:</strong> ${employeeData.arrivalTime}</p>
+                <p><strong>Departure Time:</strong> ${employeeData.departureTime}</p>
+            `;
+
+            // Display number of correctly answered responses
+            sartResultsElement.innerHTML = `
+                <p><strong>Correct Responses:</strong> ${correctResponses} out of ${responseLog.length}</p>
+            `;
+
+            resultsContainer.style.display = 'block'; // Show results
         }
 
         document.addEventListener('keydown', (event) => {
             if (taskContainer.style.display === 'block') {
                 const currentNumber = sequence[currentStimulusIndex - 1];
+                if (event.key === ' ') {
+                    if (currentNumber !== 3) {
+                        correctResponses++; // Increment correct responses if space is pressed for numbers other than 3
+                    }
+                }
                 const response = {
                     stimulus: currentNumber,
                     response: event.key,
