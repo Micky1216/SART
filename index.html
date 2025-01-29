@@ -140,35 +140,49 @@
         // Show employee form on load
         employeeForm.style.display = 'flex';
 
-        document.getElementById('submit-info').onclick = function() {
-    // Retrieve values from the form inputs
-    const age = document.getElementById('age').value;
-    const sex = document.getElementById('sex').value;
-    const building = document.getElementById('building').value;
-    const arrivalTime = document.getElementById('arrivalTime').value;
-    const departureTime = document.getElementById('departureTime').value;
+       function submitToGoogleSheets(data) {
+    fetch("https://script.google.com/macros/s/AKfycbyMCjuqxTBjWHAer9Cp66HX6AAF0L1wF5kxoQjFGdjWTSPQZVCJuzAOZtH2LaOSXD-mFA/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.error("Error:", error));
+}
 
-    // Validation check
-    if (!age || !sex || !building || !arrivalTime || !departureTime) {
-        alert("Please fill out all fields before proceeding.");
-        return; // Stop the submission if validation fails
-    }
-
+document.getElementById('submit-info').onclick = function() {
     const employeeData = {
-        age: age,
-        sex: sex,
-        building: building,
-        arrivalTime: arrivalTime,
-        departureTime: departureTime
+        age: document.getElementById('age').value,
+        sex: document.getElementById('sex').value,
+        building: document.getElementById('building').value,
+        arrivalTime: document.getElementById('arrivalTime').value,
+        departureTime: document.getElementById('departureTime').value,
+        correctResponses: correctResponses
     };
 
-    // Log employee data
-    console.log('Employee Data:', employeeData);
+    submitToGoogleSheets(employeeData); // Send data to Google Sheets
 
     // Hide the form and show the welcome screen
     employeeForm.style.display = 'none';
     welcomeScreen.style.display = 'block';
 };
+
+            const employeeData = {
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                building: document.getElementById('building').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                departureTime: document.getElementById('departureTime').value
+            };
+
+            // Log employee data
+            console.log('Employee Data:', employeeData);
+
+            // Hide the form and show the welcome screen
+            employeeForm.style.display = 'none';
+            welcomeScreen.style.display = 'block';
+        };
 
         // Generate random sequence of numbers (1-9)
         function generateSequence(length) {
@@ -234,47 +248,6 @@
             resultsContainer.style.display = 'block'; // Show results
         }
 
-        function endTask() {
-    taskContainer.style.display = 'none';
-    displayResults(); // Call the function to display results
-
-    // Collect employee data
-    const employeeData = {
-        age: document.getElementById('age').value,
-        sex: document.getElementById('sex').value,
-        building: document.getElementById('building').value,
-        arrivalTime: document.getElementById('arrivalTime').value,
-        departureTime: document.getElementById('departureTime').value
-    };
-
-    // Send data to Google Sheet
-    const url = 'https://script.google.com/macros/s/AKfycbwekQiyrFgkqpoRPWTnhzxU5fNrTHFOV9H9gj1xABZ1kdn6y5oqRXSX2Lacxye4vCU0NA/exec'; // Replace with your web app URL
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            age: employeeData.age,
-            sex: employeeData.sex,
-            building: employeeData.building,
-            arrivalTime: employeeData.arrivalTime,
-            departureTime: employeeData.departureTime,
-            correctResponses: correctResponses // Include correct responses in the data sent
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data successfully sent to Google Sheets:', data);
-            alert('Data successfully sent to Google Sheets!');
-        })
-        .catch(error => {
-            console.error('Error sending data to Google Sheets:', error);
-            alert('Failed to send data to Google Sheets. Please try again.');
-        });
-}
-
         document.addEventListener('keydown', (event) => {
             if (taskContainer.style.display === 'block') {
                 const currentNumber = sequence[currentStimulusIndex - 1];
@@ -293,6 +266,7 @@
         });
 
         startButton.addEventListener('click', startTask);
+        
     </script>
 </body>
 </html>
