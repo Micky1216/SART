@@ -85,7 +85,7 @@
 
     <div id="welcome-screen" style="display:none;">
         <h1>SART Task</h1>
-        <p>Press SPACE for all numbers **exceppt 3**. Do not press any key for 3.</p>
+        <p>Press SPACE for all numbers **except 3**. Do not press any key for 3.</p>
         <button id="start-button">Start</button>
     </div>
 
@@ -116,16 +116,20 @@
         let correctResponses = 0;
 
         document.getElementById('submit-info').onclick = function() {
-            const employeeData = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                building: document.getElementById('building').value,
-                arrivalTime: document.getElementById('arrivalTime').value,
-                departureTime: document.getElementById('departureTime').value
-            };
+            if (employeeForm.checkValidity()) {
+                const employeeData = {
+                    age: document.getElementById('age').value,
+                    sex: document.getElementById('sex').value,
+                    building: document.getElementById('building').value,
+                    arrivalTime: document.getElementById('arrivalTime').value,
+                    departureTime: document.getElementById('departureTime').value
+                };
 
-            employeeForm.style.display = 'none';
-            welcomeScreen.style.display = 'block';
+                employeeForm.style.display = 'none';
+                welcomeScreen.style.display = 'block';
+            } else {
+                alert("Please fill in all fields.");
+            }
         };
 
         function generateSequence(length) {
@@ -165,8 +169,23 @@
                 responseLog
             };
 
+            // Display results
+            employeeInfoElement.innerHTML = `
+                <p>Age: ${finalResults.age}</p>
+                <p>Sex: ${finalResults.sex}</p>
+                <p>Building: ${finalResults.building}</p>
+                <p>Arrival Time: ${finalResults.arrivalTime}</p>
+                <p>Departure Time: ${finalResults.departureTime}</p>
+            `;
+            sartResultsElement.innerHTML = `
+                <p>Correct Responses: ${finalResults.correctResponses}</p>
+                <p>Total Trials: ${finalResults.totalTrials}</p>
+                <p>Response Log: ${finalResults.responseLog.join(', ')}</p>
+            `;
+            resultsContainer.style.display = 'block';
+
+            // Submit to Google Sheets
             submitToGoogleSheets(finalResults);
-            displayResults();
         }
 
         function submitToGoogleSheets(data) {
