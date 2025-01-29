@@ -1,244 +1,335 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sustained Attention to Response Task (SART)</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
-        #task-container {
-            display: none;
-            text-align: center;
-        }
-        #start-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-        }
-        #stimulus {
-            font-size: 80px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        #instructions {
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #employee-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: left;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            margin: 10px 0 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #results {
-            display: none;
-            text-align: center;
-        }
-    </style>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sustained Attention to Response Task (SART)</title>
+
+<style>
+
+body {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+justify-content: center;
+
+height: 100vh;
+
+margin: 0;
+
+font-family: Arial, sans-serif;
+
+background-color: #f5f5f5;
+
+}
+
+#task-container {
+
+display: none;
+
+text-align: center;
+
+}
+
+#start-button {
+
+padding: 10px 20px;
+
+font-size: 16px;
+
+cursor: pointer;
+
+border: none;
+
+border-radius: 5px;
+
+background-color: #007bff;
+
+color: white;
+
+}
+
+#stimulus {
+
+font-size: 80px;
+
+font-weight: bold;
+
+margin: 20px 0;
+
+}
+
+#instructions {
+
+font-size: 18px;
+
+text-align: center;
+
+margin-bottom: 20px;
+
+}
+
+#employee-form {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+text-align: left;
+
+padding: 20px;
+
+background-color: white;
+
+border-radius: 8px;
+
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+}
+
+label {
+
+margin: 10px 0 5px;
+
+}
+
+input, select {
+
+width: 100%;
+
+padding: 10px;
+
+margin-bottom: 15px;
+
+border: 1px solid #ccc;
+
+border-radius: 5px;
+
+}
+
+button {
+
+padding: 10px 15px;
+
+background-color: #4CAF50;
+
+color: white;
+
+border: none;
+
+cursor: pointer;
+
+border-radius: 5px;
+
+}
+
+button:hover {
+
+background-color: #45a049;
+
+}
+
+#results {
+
+display: none;
+
+text-align: center;
+
+}
+
+</style>
+
 </head>
+
 <body>
-    <div id="employee-form">
-        <h2>Employee Information</h2>
+
+<div id="employee-form">
+
+<h2>Employee Information</h2>
+<label for="age">Age:</label>
+    <input type="number" id="age" required>
+    
+    <label for="sex">Sex:</label>
+    <select id="sex" required>
+        <option value="">Select...</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select>
+    
+    <label for="building">Which Carel building are you working in?</label>
+    <select id="building" required>
+        <option value="">Select...</option>
+        <option value="CAREL 5">CAREL 5</option>
+        <option value="CAREL 6">CAREL 6</option>
+    </select>
+    
+    <label for="arrivalTime">Arrival Time:</label>
+    <input type="time" id="arrivalTime" required>
+
+    <label for="departureTime">Departure Time:</label>
+    <input type="time" id="departureTime" required>
+
+    <button id="submit-info">Submit</button>
+</div>
+
+<div id="welcome-screen" style="display:none;">
+    <h1>Sustained Attention to Response Task (SART)</h1>
+    <p id="instructions">Press the Start button to begin. Respond to every number with press SPACE BAR except for <strong>3</strong>. When you see a <strong>3</strong>, do not press any key.</p>
+    <button id="start-button">Start</button>
+</div>
+
+<div id="task-container">
+    <div id="stimulus"></div>
+</div>
+
+<div id="results">
+    <h2>Results</h2>
+    <div id="employee-info"></div>
+    <div id="sart-results"></div>
+</div>
+
+<script>
+    const employeeForm = document.getElementById('employee-form');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const startButton = document.getElementById('start-button');
+    const taskContainer = document.getElementById('task-container');
+    const stimulusElement = document.getElementById('stimulus');
+    const resultsContainer = document.getElementById('results');
+    const employeeInfoElement = document.getElementById('employee-info');
+    const sartResultsElement = document.getElementById('sart-results');
+
+    let sequence = [];
+    let currentStimulusIndex = 0;
+    let responseLog = [];
+    let trialInterval;
+    let correctResponses = 0; // Counter for correct responses
+
+    // Show employee form on load
+    employeeForm.style.display = 'flex';
+
+    document.getElementById('submit-info').onclick = function() {
+// Retrieve values from the form inputs
+const age = document.getElementById('age').value;
+const sex = document.getElementById('sex').value;
+const building = document.getElementById('building').value;
+const arrivalTime = document.getElementById('arrivalTime').value;
+const departureTime = document.getElementById('departureTime').value;
+
+// Validation check
+if (!age || !sex || !building || !arrivalTime || !departureTime) {
+    alert("Please fill out all fields before proceeding.");
+    return; // Stop the submission if validation fails
+}
+
+const employeeData = {
+    age: age,
+    sex: sex,
+    building: building,
+    arrivalTime: arrivalTime,
+    departureTime: departureTime
+};
+
+// Log employee data
+console.log('Employee Data:', employeeData);
+
+// Hide the form and show the welcome screen
+employeeForm.style.display = 'none';
+welcomeScreen.style.display = 'block';
+};
+// Generate random sequence of numbers (1-9)
+    function generateSequence(length) {
+        const numbers = [];
+        for (let i = 0; i < length; i++) {
+            numbers.push(Math.floor(Math.random() * 9) + 1);
+        }
+        return numbers;
+    }
+
+    function showStimulus() {
+        if (currentStimulusIndex >= sequence.length) {
+            clearInterval(trialInterval);
+            endTask();
+            return;
+        }
         
-        <label for="age">Age:</label>
-        <input type="number" id="age" required>
+        const number = sequence[currentStimulusIndex];
+        stimulusElement.textContent = number;
+        currentStimulusIndex++;
+    }
+
+    function startTask() {
+        sequence = generateSequence(30); // 30 trials
+        currentStimulusIndex = 0;
+        responseLog = [];
+        correctResponses = 0; // Reset correct responses
         
-        <label for="sex">Sex:</label>
-        <select id="sex" required>
-            <option value="">Select...</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-        </select>
+        welcomeScreen.style.display = 'none';
+        taskContainer.style.display = 'block';
         
-        <label for="building">Which Carel building are you working in?</label>
-        <select id="building" required>
-            <option value="">Select...</option>
-            <option value="CAREL 5">CAREL 5</option>
-            <option value="CAREL 6">CAREL 6</option>
-        </select>
-        
-        <label for="arrivalTime">Arrival Time:</label>
-        <input type="time" id="arrivalTime" required>
+        trialInterval = setInterval(showStimulus, 1000); // 1 second per trial
+    }
 
-        <label for="departureTime">Departure Time:</label>
-        <input type="time" id="departureTime" required>
+    function endTask() {
+        taskContainer.style.display = 'none';
+        displayResults(); // Call the function to display results
+    }
 
-        <button id="submit-info">Submit</button>
-    </div>
-
-    <div id="welcome-screen" style="display:none;">
-        <h1>Sustained Attention to Response Task (SART)</h1>
-        <p id="instructions">Press the Start button to begin. Respond to every number with press SPACE BAR except for <strong>3</strong>. When you see a <strong>3</strong>, do not press any key.</p>
-        <button id="start-button">Start</button>
-    </div>
-
-    <div id="task-container">
-        <div id="stimulus"></div>
-    </div>
-
-    <div id="results">
-        <h2>Results</h2>
-        <div id="employee-info"></div>
-        <div id="sart-results"></div>
-    </div>
-
-    <script>
-        const employeeForm = document.getElementById('employee-form');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const startButton = document.getElementById('start-button');
-        const taskContainer = document.getElementById('task-container');
-        const stimulusElement = document.getElementById('stimulus');
-        const resultsContainer = document.getElementById('results');
-        const employeeInfoElement = document.getElementById('employee-info');
-        const sartResultsElement = document.getElementById('sart-results');
-
-        let sequence = [];
-        let currentStimulusIndex = 0;
-        let responseLog = [];
-        let trialInterval;
-        let correctResponses = 0; // Counter for correct responses
-
-        // Show employee form on load
-        employeeForm.style.display = 'flex';
-
-        document.getElementById('submit-info').onclick = function() {
-            const employeeData = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                building: document.getElementById('building').value,
-                arrivalTime: document.getElementById('arrivalTime').value,
-                departureTime: document.getElementById('departureTime').value
-            };
-
-            // Log employee data
-            console.log('Employee Data:', employeeData);
-
-            // Hide the form and show the welcome screen
-            employeeForm.style.display = 'none';
-            welcomeScreen.style.display = 'block';
+    function displayResults() {
+        // Display employee information
+        const employeeData = {
+            age: document.getElementById('age').value,
+            sex: document.getElementById('sex').value,
+            building: document.getElementById('building').value,
+            arrivalTime: document.getElementById('arrivalTime').value,
+            departureTime: document.getElementById('departureTime').value
         };
 
-        // Generate random sequence of numbers (1-9)
-        function generateSequence(length) {
-            const numbers = [];
-            for (let i = 0; i < length; i++) {
-                numbers.push(Math.floor(Math.random() * 9) + 1);
-            }
-            return numbers;
-        }
+        employeeInfoElement.innerHTML = `
+            <p><strong>Age:</strong> ${employeeData.age}</p>
+            <p><strong>Sex:</strong> ${employeeData.sex}</p>
+            <p><strong>Building:</strong> ${employeeData.building}</p>
+            <p><strong>Arrival Time:</strong> ${employeeData.arrivalTime}</p>
+            <p><strong>Departure Time:</strong> ${employeeData.departureTime}</p>
+        `;
 
-        function showStimulus() {
-            if (currentStimulusIndex >= sequence.length) {
-                clearInterval(trialInterval);
-                endTask();
-                return;
-            }
-            
-            const number = sequence[currentStimulusIndex];
-            stimulusElement.textContent = number;
-            currentStimulusIndex++;
-        }
+        // Display number of correctly answered responses
+        sartResultsElement.innerHTML = `
+            <p><strong>Correct Responses:</strong> ${correctResponses} out of ${responseLog.length}</p>
+        `;
 
-        function startTask() {
-            sequence = generateSequence(30); // 30 trials
-            currentStimulusIndex = 0;
-            responseLog = [];
-            correctResponses = 0; // Reset correct responses
-            
-            welcomeScreen.style.display = 'none';
-            taskContainer.style.display = 'block';
-            
-            trialInterval = setInterval(showStimulus, 1000); // 1 second per trial
-        }
+        resultsContainer.style.display = 'block'; // Show results
+    }
 
-        function endTask() {
-            taskContainer.style.display = 'none';
-            displayResults(); // Call the function to display results
-        }
-
-        function displayResults() {
-            // Display employee information
-            const employeeData = {
-                age: document.getElementById('age').value,
-                sex: document.getElementById('sex').value,
-                building: document.getElementById('building').value,
-                arrivalTime: document.getElementById('arrivalTime').value,
-                departureTime: document.getElementById('departureTime').value
-            };
-
-            employeeInfoElement.innerHTML = `
-                <p><strong>Age:</strong> ${employeeData.age}</p>
-                <p><strong>Sex:</strong> ${employeeData.sex}</p>
-                <p><strong>Building:</strong> ${employeeData.building}</p>
-                <p><strong>Arrival Time:</strong> ${employeeData.arrivalTime}</p>
-                <p><strong>Departure Time:</strong> ${employeeData.departureTime}</p>
-            `;
-
-            // Display number of correctly answered responses
-            sartResultsElement.innerHTML = `
-                <p><strong>Correct Responses:</strong> ${correctResponses} out of ${responseLog.length}</p>
-            `;
-
-            resultsContainer.style.display = 'block'; // Show results
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (taskContainer.style.display === 'block') {
-                const currentNumber = sequence[currentStimulusIndex - 1];
-                if (event.key === ' ') {
-                    if (currentNumber !== 3) {
-                        correctResponses++; // Increment correct responses if space is pressed for numbers other than 3
-                    }
+    document.addEventListener('keydown', (event) => {
+        if (taskContainer.style.display === 'block') {
+            const currentNumber = sequence[currentStimulusIndex - 1];
+            if (event.key === ' ') {
+                if (currentNumber !== 3) {
+                    correctResponses++; // Increment correct responses if space is pressed for numbers other than 3
                 }
-                const response = {
-                    stimulus: currentNumber,
-                    response: event.key,
-                    timestamp: Date.now()
-                };
-                responseLog.push(response);
             }
-        });
+            const response = {
+                stimulus: currentNumber,
+                response: event.key,
+                timestamp: Date.now()
+            };
+            responseLog.push(response);
+        }
+    });
 
-        startButton.addEventListener('click', startTask);
-    </script>
+    startButton.addEventListener('click', startTask);
+</script>
 </body>
+
 </html>
