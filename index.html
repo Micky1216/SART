@@ -156,11 +156,8 @@ text-align: center;
 
 <div id="employee-form">
 
-<h2>Employeeee Information</h2>
-<label for="email">Email:</label>
-    <input type="text" id="email" required>
-    
-    <label for="age">Age:</label>
+<h2>Employee Information</h2>
+<label for="age">Age:</label>
     <input type="number" id="age" required>
     
     <label for="sex">Sex:</label>
@@ -220,6 +217,17 @@ text-align: center;
 
     // Show employee form on load
     employeeForm.style.display = 'flex';
+
+    function submitToGoogleSheets(data) {
+    fetch("https://micky1216.github.io/SART/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.text())
+    .then(result => console.log("Data sent successfully:", result))
+    .catch(error => console.error("Error:", error));
+}
 
     document.getElementById('submit-info').onclick = function() {
 // Retrieve values from the form inputs
@@ -284,9 +292,25 @@ welcomeScreen.style.display = 'block';
     }
 
     function endTask() {
-        taskContainer.style.display = 'none';
-        displayResults(); // Call the function to display results
-    }
+    taskContainer.style.display = 'none';
+
+    // Collect final results
+    const finalResults = {
+        age: document.getElementById('age').value,
+        sex: document.getElementById('sex').value,
+        building: document.getElementById('building').value,
+        arrivalTime: document.getElementById('arrivalTime').value,
+        departureTime: document.getElementById('departureTime').value,
+        correctResponses: correctResponses,
+        totalTrials: responseLog.length,
+        responseLog: responseLog // Send the raw response data
+    };
+
+    submitToGoogleSheets(finalResults); // Send data to Google Sheets
+
+    displayResults();
+}
+
 
     function displayResults() {
         // Display employee information
